@@ -6,13 +6,10 @@ CC = gcc
 #  -Wall turns on most, but not all, compiler warnings
 CFLAGS  = -g -Wall
 
-all: client server
+all: client
 
 client: src/client.c
 	$(CC) $(CFLAGS) -o bin/client src/client.c
-
-server: src/server.c
-	$(CC) $(CFLAGS) -o bin/server src/server.c
 
 clean:
 	rm -rf bin/*
