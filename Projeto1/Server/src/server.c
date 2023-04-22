@@ -6,6 +6,8 @@
 #include <sys/types.h>
 #include <string.h>
 #include <sys/time.h>
+#include "userdb.h"
+#include <sqlite3.h>
 
 #define SERV_PORT 8081
 #define LISTENQ 5
@@ -13,6 +15,9 @@
 void process_request(int new_fd);
  
 int main(){
+
+    sqlite3 *db = load_db("users.db");
+
     int sock_fd, new_fd;
     pid_t childpid;
     socklen_t clilen; 
@@ -42,42 +47,38 @@ int main(){
 }
 
 void process_request(int new_fd){
-    char buffer[1024];
+    char buffer[1024] = {0};
+    char response[1024] = {0};
     // Initializing buffer array with NULL
     memset(buffer, '\0', sizeof(buffer));
 
     if (recv(new_fd, buffer, 1024, 0) < 0) {
         printf("Error in receiving data.\n");
     }else {
-        if(strcmp(buffer,"1") == 0){
-            char response[1024];
-            strcpy(response, "resultado op 1");
-            send(new_fd, response, strlen(response), 0);
-        }else if(strcmp(buffer,"2") == 0){
-            char response[1024];
-            strcpy(response, "resultado op 2");
-            send(new_fd, response, strlen(response), 0);
-        }else if(strcmp(buffer,"3") == 0){
-            char response[1024];
-            strcpy(response, "resultado op 3");
-            send(new_fd, response, strlen(response), 0);
-        }else if(strcmp(buffer,"4") == 0){
-            char response[1024];
-            strcpy(response, "resultado op 4");
-            send(new_fd, response, strlen(response), 0);
-        }else if(strcmp(buffer,"5") == 0){
-            char response[1024];
-            strcpy(response, "resultado op 5");
-            send(new_fd, response, strlen(response), 0);
-        }else if(strcmp(buffer,"6") == 0){
-            char response[1024];
-            strcpy(response, "resultado op 6");
-            send(new_fd, response, strlen(response), 0);
-        }else if(strcmp(buffer,"7") == 0){
-            char response[1024];
-            strcpy(response, "resultado op 7");
-            send(new_fd, response, strlen(response), 0);
+        switch(buffer[0]) {
+            case '1':
+				strcpy(response, "resultado op 1");
+				break;
+			case '2':
+				strcpy(response, "resultado op 2");
+				break;
+			case '3':
+				strcpy(response, "resultado op 3");
+				break;
+			case '4':
+				strcpy(response, "resultado op 4");
+				break;
+			case '5':
+				strcpy(response, "resultado op 5");
+				break;
+			case '6':
+				strcpy(response, "resultado op 6");
+				break;
+			case '7':
+				strcpy(response, "resultado op 7");
+				break;
         }
+
+        send(new_fd, response, strlen(response), 0);
     }
-    bzero(buffer, sizeof(buffer));
 }

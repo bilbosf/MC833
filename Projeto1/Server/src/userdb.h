@@ -3,14 +3,17 @@
 
 #include <sqlite3.h>
 
+#define USER_FIELD_LEN 50
+#define USER_SKILLS_LEN 200
+
 typedef struct user_t {
-    char email[50];
-    char first_name[50];
-    char last_name[50];
-    char city[50];
-    char graduation_course[50];
-    char graduation_year[10];
-    char skills[200];
+    char email              [USER_FIELD_LEN];
+    char first_name         [USER_FIELD_LEN];
+    char last_name          [USER_FIELD_LEN];
+    char city               [USER_FIELD_LEN];
+    char graduation_course  [USER_FIELD_LEN];
+    char graduation_year    [USER_FIELD_LEN];
+    char skills             [USER_SKILLS_LEN];
 } user_t;
 
 typedef struct user_list_t {
