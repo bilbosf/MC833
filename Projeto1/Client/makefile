@@ -9,7 +9,7 @@ CFLAGS  = -g -Wall
 all: client
 
 client: src/client.c
-	$(CC) $(CFLAGS) -o bin/client src/client.c
+	$(CC) $(CFLAGS) -o bin/client src/client.c src/netservice.c
 
 clean:
 	rm -rf bin/*
