@@ -2,21 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
-typedef struct user_t {
-    char email[50];
-    char first_name[50];
-    char last_name[50];
-    char city[50];
-    char graduation_course[50];
-    char graduation_year[10];
-    char skills[200];
-} user_t;
-
-typedef struct user_list_t {
-    user_t *list;
-    int length;
-} user_list_t;
+#include "userdb.h"
 
 sqlite3 *load_db(char *db_name){
     sqlite3 *db;
