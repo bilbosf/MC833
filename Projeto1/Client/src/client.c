@@ -3,8 +3,9 @@
 #include <string.h>
 #include "netservice.h"
  
-#define PORT 8081
+#define PORT 8080
 #define IP "127.0.0.1"
+#define BUFFER_LEN 1024
 
 int main(){
     printf("*************** Bem vindo ao serviço de busca de perfis ***************\n");
@@ -27,7 +28,7 @@ int main(){
 		printf("\n");
 
 		/* Fazer requisicao */
-		char arg[1023] = {'\0'};
+		char arg[BUFFER_LEN - 1] = {'\0'};
 		switch (command){
 			case '1':
 				printf("Curso que deseja buscar: ");
@@ -60,7 +61,7 @@ int main(){
 		}
 
 		fgetc(stdin); // Necessário para limpar o buffer antes do fgets
-		fgets(arg, 1023, stdin);
+		fgets(arg, BUFFER_LEN - 1, stdin);
 		send_request(command, arg, IP, PORT);
 	}
     return (0);

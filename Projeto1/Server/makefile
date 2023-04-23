@@ -8,8 +8,8 @@ CFLAGS  = -g -Wall
 
 all: server userdb
 
-server: src/server.c
-	$(CC) $(CFLAGS) -o bin/server src/server.c
+server: src/server.c src/userdb.c 
+	$(CC) $(CFLAGS) -o bin/server src/server.c src/userdb.c -l sqlite3
 
 userdb: src/userdb.c
 	$(CC) $(CFLAGS) src/userdb.c -l sqlite3 -o bin/userdb

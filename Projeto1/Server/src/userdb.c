@@ -198,30 +198,31 @@ int remove_user(sqlite3 *db, char *email) {
     return 0;
 }
 
+/*
 int main(){
     // Example code to test some of the functions
     sqlite3 *db = load_db("test.db");
 
     user_t user1;
-    strcpy(user1.email, "maria_souza@gmail.com");
-    strcpy(user1.first_name, "Maria");
-    strcpy(user1.last_name, "Souza");
-    strcpy(user1.city, "Campinas");
-    strcpy(user1.graduation_course, "Ciencia da Computacao");
-    strcpy(user1.graduation_year, "2018");
-    strcpy(user1.skills, "Ciencia dos Dados, Internet das Coisas, Computacao em Nuvem");
+    strcpy(user1.email, "lucas_teste4@gmail.com");
+    strcpy(user1.first_name, "Luquesta4");
+    strcpy(user1.last_name, "Adnos4");
+    strcpy(user1.city, "Sao paolo4");
+    strcpy(user1.graduation_course, "Agricola4");
+    strcpy(user1.graduation_year, "2022");
+    strcpy(user1.skills, "Compiladores, Sistemas Distribuidos, Computacao em Nuvem");
 
-    user_t user2;
-    strcpy(user2.email, "lucas_soares@gmail.com");
-    strcpy(user2.first_name, "Lucas");
-    strcpy(user2.last_name, "Soares");
-    strcpy(user2.city, "Campinas");
-    strcpy(user2.graduation_course, "Engenharia da Computacao");
-    strcpy(user2.graduation_year, "2023");
-    strcpy(user2.skills, "Sistemas Embarcados, Internet das Coisas, Computacao em Nuvem");
+    // user_t user2;
+    // strcpy(user2.email, "lucas_soares@gmail.com");
+    // strcpy(user2.first_name, "Lucas");
+    // strcpy(user2.last_name, "Soares");
+    // strcpy(user2.city, "Campinas");
+    // strcpy(user2.graduation_course, "Engenharia da Computacao");
+    // strcpy(user2.graduation_year, "2023");
+    // strcpy(user2.skills, "Sistemas Embarcados, Internet das Coisas, Computacao em Nuvem");
 
     add_user(db, user1);
-    add_user(db, user2);
+    //add_user(db, user2);
 
     user_list_t *list = get_all_users(db);
 
@@ -234,17 +235,19 @@ int main(){
 
     printf("\n\n");
 
-    remove_user(db, user1.email);
+    //remove_user(db, user1.email);
 
-    list = get_all_users(db);
+    // list = get_all_users(db);
 
-    for(int i = 0 ; i < list->length ; i++) {
-        printf("%s\n", list->list[i].email);
-    }
+    // for(int i = 0 ; i < list->length ; i++) {
+    //     printf("%s\n", list->list[i].email);
+    // }
 
-    free(list->list);
-    free(list);
+    // free(list->list);
+    // free(list);
 
     sqlite3_close(db);
 }
+*/
+
 
