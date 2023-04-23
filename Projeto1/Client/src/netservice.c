@@ -4,8 +4,7 @@
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <unistd.h>
-
-#define BUFFER_LEN 1024
+#include "netservice.h"
 
 int connect_to_server(char *ip, int port){
 	int sock = 0;
@@ -37,7 +36,7 @@ int send_request(char cmd, char* arg, char* ip, int port){
 	bzero(msg, sizeof(msg));
 
 	msg[0] = cmd;
-	strncpy(&msg[1], arg, BUFFER_LEN - 1);
+	memcpy(&msg[1], arg, BUFFER_LEN - 1);
 
 	int sock = 0;
 	sock = connect_to_server(ip, port);
@@ -47,16 +46,22 @@ int send_request(char cmd, char* arg, char* ip, int port){
 	char buffer[BUFFER_LEN] = {0};
 
 	/* Keeps receiving from recv() until detects end of message character: EOT */
-	printf("Server response:\n");
+	printf("\nResposta do servidor:\n");
 	int end_of_message = 0;
 	while(end_of_message == 0){
 		if(recv(sock, buffer, BUFFER_LEN, 0) < 0) {
 			printf("Error in receiving data.\n");
 			return 1;
 		}
-		printf("%s", buffer);
-		for(int i = 0; i < BUFFER_LEN; i++)
-			if(buffer[i] == 0x04) end_of_message = 1; //0x04 EOT -End of Transmission special character
+
+		for(int i = 0; i < BUFFER_LEN; i++) {
+			if(buffer[i] != 0x04){
+				printf("%c", buffer[i]);
+			} else {
+				end_of_message = 1; //0x04 EOT -End of Transmission special character
+			}
+		}
+
 		bzero(buffer, sizeof(buffer)); //clear buffer with zeros
 	}
 	return 0;

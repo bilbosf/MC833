@@ -67,14 +67,13 @@ int build_list(sqlite3 *db, char *sql, user_list_t *user_list){
 
     int i = 0;
     while (((rc = sqlite3_step(stmt)) == SQLITE_ROW) && i < user_list->length) {
-        strncpy(user_list->list[i].last_name,        (char*) sqlite3_column_text(stmt, 2), sqlite3_column_bytes(stmt, 2));
-        strncpy(user_list->list[i].city,             (char*) sqlite3_column_text(stmt, 3), sqlite3_column_bytes(stmt, 3));
-        strncpy(user_list->list[i].graduation_course,(char*) sqlite3_column_text(stmt, 4), sqlite3_column_bytes(stmt, 4));
-        strncpy(user_list->list[i].first_name,       (char*) sqlite3_column_text(stmt, 1), sqlite3_column_bytes(stmt, 1));
-        strncpy(user_list->list[i].email,            (char*) sqlite3_column_text(stmt, 0), sqlite3_column_bytes(stmt, 0));
-        strncpy(user_list->list[i].graduation_year,  (char*) sqlite3_column_text(stmt, 5), sqlite3_column_bytes(stmt, 5));
-        strncpy(user_list->list[i].skills,           (char*) sqlite3_column_text(stmt, 6), sqlite3_column_bytes(stmt, 6));
-
+        strncpy(user_list->list[i].last_name,        (char*) sqlite3_column_text(stmt, 2), sqlite3_column_bytes(stmt, 2) + 1);
+        strncpy(user_list->list[i].city,             (char*) sqlite3_column_text(stmt, 3), sqlite3_column_bytes(stmt, 3) + 1);
+        strncpy(user_list->list[i].graduation_course,(char*) sqlite3_column_text(stmt, 4), sqlite3_column_bytes(stmt, 4) + 1);
+        strncpy(user_list->list[i].first_name,       (char*) sqlite3_column_text(stmt, 1), sqlite3_column_bytes(stmt, 1) + 1);
+        strncpy(user_list->list[i].email,            (char*) sqlite3_column_text(stmt, 0), sqlite3_column_bytes(stmt, 0) + 1);
+        strncpy(user_list->list[i].graduation_year,  (char*) sqlite3_column_text(stmt, 5), sqlite3_column_bytes(stmt, 5) + 1);
+        strncpy(user_list->list[i].skills,           (char*) sqlite3_column_text(stmt, 6), sqlite3_column_bytes(stmt, 6) + 1);
         i++;
     }
 
@@ -197,57 +196,3 @@ int remove_user(sqlite3 *db, char *email) {
 
     return 0;
 }
-
-/*
-int main(){
-    // Example code to test some of the functions
-    sqlite3 *db = load_db("test.db");
-
-    user_t user1;
-    strcpy(user1.email, "lucas_teste4@gmail.com");
-    strcpy(user1.first_name, "Luquesta4");
-    strcpy(user1.last_name, "Adnos4");
-    strcpy(user1.city, "Sao paolo4");
-    strcpy(user1.graduation_course, "Agricola4");
-    strcpy(user1.graduation_year, "2022");
-    strcpy(user1.skills, "Compiladores, Sistemas Distribuidos, Computacao em Nuvem");
-
-    // user_t user2;
-    // strcpy(user2.email, "lucas_soares@gmail.com");
-    // strcpy(user2.first_name, "Lucas");
-    // strcpy(user2.last_name, "Soares");
-    // strcpy(user2.city, "Campinas");
-    // strcpy(user2.graduation_course, "Engenharia da Computacao");
-    // strcpy(user2.graduation_year, "2023");
-    // strcpy(user2.skills, "Sistemas Embarcados, Internet das Coisas, Computacao em Nuvem");
-
-    add_user(db, user1);
-    //add_user(db, user2);
-
-    user_list_t *list = get_all_users(db);
-
-    for(int i = 0 ; i < list->length ; i++) {
-        printf("%s\n", list->list[i].email);
-    }
-
-    free(list->list);
-    free(list);
-
-    printf("\n\n");
-
-    //remove_user(db, user1.email);
-
-    // list = get_all_users(db);
-
-    // for(int i = 0 ; i < list->length ; i++) {
-    //     printf("%s\n", list->list[i].email);
-    // }
-
-    // free(list->list);
-    // free(list);
-
-    sqlite3_close(db);
-}
-*/
-
-
