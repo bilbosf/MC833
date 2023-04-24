@@ -17,7 +17,7 @@ int main(){
     printf("*************** Bem vindo ao serviço de busca de perfis ***************\n");
 
     while(1){
-		/* Mostrar menu de escolha */
+		/* Show menu selection */
         printf("\n*************** Menu de escolha ***************\n");
 		printf("Insira o número de um dos comandos a seguir e pressione enter:\n");
 		printf("\t1 - Listar todas as pessoas (email e nome) formadas em um determinado curso\n");
@@ -33,11 +33,11 @@ int main(){
 		char command;
 		scanf("%c", &command);
 
-		// Limpar buffer de entrada para prevenir overflow
+		//Clear input buffer to prevent overflow
 		int c;
 		while ((c = getchar()) != '\n' && c != EOF); 
 
-		/* Fazer requisicao */
+		/* Directs to the right function if it needs to take an extra argument */
 		char arg[BUFFER_LEN - 1] = {'\0'};
 		switch (command){
 			case '1':
@@ -74,6 +74,7 @@ int main(){
 				continue;
 		}
 
+		
 		send_request(command, arg, IP, PORT);
 
 		printf("Pressione enter para continuar.");

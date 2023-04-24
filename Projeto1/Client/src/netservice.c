@@ -6,31 +6,40 @@
 #include <unistd.h>
 #include "netservice.h"
 
+/*Function that connects to the server via TCP connection, it needs the ip and port number*/
 int connect_to_server(char *ip, int port){
-	int sock = 0;
-	struct sockaddr_in serv_addr;
+	int sock_fd = 0; //socket file descriptor
+	struct sockaddr_in serv_addr; //socket address structure
 	
-	
-	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+	//PF_INET: socket uses internet IPv4
+    //SOCK_STREAM: TCP socket
+    //third parameter 0: chooses the proper protocol for the given type
+	if ((sock_fd = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
 		printf("\n Socket creation error \n");
 	}
 
-	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port = htons(port);
+	/*Fills server socket address structure */
+    bzero(&serv_addr, sizeof(serv_addr)); // fill with zeros first
+    serv_addr.sin_family = AF_INET;      //address family AF_INET, for IPv4
+    serv_addr.sin_port = htons (port);   //fill port number and convert to network byte order
 
+	//Converts the string ip received to numeric binary form and fills the server socket address structure
 	if (inet_pton(AF_INET, ip, &serv_addr.sin_addr) <= 0) {
 		printf("\nInvalid address/ Address not supported \n");
 		return -1;
 	}
 	
-	if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
+	//If it succeeded in connecting to the server it returns the socket descriptor
+	if (connect(sock_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
 		printf("\nConnection Failed \n");
 		return -1;
 	}else{
-		return sock;
+		return sock_fd;
 	}
 }
 
+/*Organizes the command and arguments in the buffer and sends the request to the server.
+Prints the response received from server.*/
 int send_request(char cmd, char* arg, char* ip, int port){
 	char msg[BUFFER_LEN] = {0};
 	bzero(msg, sizeof(msg));
@@ -65,25 +74,4 @@ int send_request(char cmd, char* arg, char* ip, int port){
 		bzero(buffer, sizeof(buffer)); //clear buffer with zeros
 	}
 	return 0;
-}
-
-void add_user(char* ip, int port){
-    char cmd_code = '6';
-	char buffer[1024];
-
-	// Initializing buffer array with NULL
-    memset(buffer, '\0', sizeof(buffer));
-
-	int sock = 0;
-	sock = connect_to_server(ip, port);
-	if(sock == -1) return;
-	send(sock, &cmd_code, 1, 0);
-
-	// recv() receives the message from server and stores in buffer
-    if(recv(sock, buffer, 1024, 0) < 0) {
-        printf("Error in receiving data.\n");
-    }else {
-        printf("Server: %s\n", buffer);
-        bzero(buffer, sizeof(buffer));
-    }
 }

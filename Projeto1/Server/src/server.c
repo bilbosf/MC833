@@ -3,11 +3,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <string.h>
-#include <sys/time.h>
 #include <sqlite3.h>
-#include <stdbool.h>
 #include "userdb.h"
 #include "server_send.h"
 
@@ -17,26 +14,41 @@
 void process_request(int new_fd, sqlite3* db);
 
 int main(){
+    sqlite3 *db = load_db("users.db"); //Database File
 
-    sqlite3 *db = load_db("test.db");
+    int sock_fd, new_fd; //sockets file descriptors
+    pid_t childpid;      //pid of the process that handles the request
+    socklen_t clilen;    //platform independent type for socket address structure length
 
-    int sock_fd, new_fd;
-    pid_t childpid;
-    socklen_t clilen; 
+    struct sockaddr_in cliaddr, servaddr; //sockets address structure
 
-    struct sockaddr_in cliaddr, servaddr;
-    sock_fd= socket (PF_INET, SOCK_STREAM, 0);
-    bzero(&servaddr, sizeof(servaddr));
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = htonl (INADDR_ANY);
-    servaddr.sin_port = htons (SERV_PORT);
+    //PF_INET: socket uses internet IPv4
+    //SOCK_STREAM: TCP socket
+    //third parameter 0: chooses the proper protocol for the given type
+    sock_fd = socket (PF_INET, SOCK_STREAM, 0);
+
+
+    /*Fills server socket address structure */
+    bzero(&servaddr, sizeof(servaddr));            // fill with zeros first
+    servaddr.sin_family = AF_INET;                 //address family AF_INET, for IPv4
+    servaddr.sin_addr.s_addr = htonl (INADDR_ANY); //fill internet address and convert to network byte order
+    servaddr.sin_port = htons (SERV_PORT);         //fill port number and convert to network byte order
+
+    /*Assign a type of socket address to a socket*/
     bind(sock_fd, (struct sockaddr*) &servaddr, sizeof(servaddr));
+
+    /*Announces that it is ready to receive a maximum of LISTENQ connections
+    on the incoming queue*/
     listen(sock_fd, LISTENQ);
     printf("Server listening on port %d\n", SERV_PORT);
 
     while(1){
-        clilen = sizeof(cliaddr);
+        clilen = sizeof(cliaddr); //fills length by size of client sockaddr_in
+
+        /*new_fd receives new socket descriptor created by OS. 
+        cliaddr stores information about protocol address from client */
         new_fd = accept(sock_fd, (struct sockaddr*) &cliaddr, &clilen);
+
         if ( (childpid = fork()) == 0) { /* child process */
             close(sock_fd); /* close listening socket */
             process_request(new_fd, db); /* process the request */
@@ -48,9 +60,16 @@ int main(){
     return (0);
 }
 
+/*Directs the command received to the proper function*/
 void process_request(int new_fd, sqlite3* db){
     char buffer[BUFFER_LEN] = {0};
 
+    /*
+    Receive a message from client socket.
+    Because flags is set to zero, if a message is too long to fit in the supplied buffer
+     the excess bytes shall be discarded.
+    We designed BUFFER_LEN to be sufficient to receive any message from client
+    */
     if (recv(new_fd, buffer, BUFFER_LEN, 0) < 0) {
         printf("Error in receiving data.\n");
         return;

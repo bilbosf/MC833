@@ -3,14 +3,13 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <string.h>
-#include <sys/time.h>
 #include <sqlite3.h>
 #include <stdbool.h>
 #include "userdb.h"
 #include "server_send.h"
 
+/*Format the response and send it to the client via socket*/
 void send_response(int new_fd, user_list_t *list, bool city, bool course, bool year, bool skills) {
     char response[BUFFER_LEN] = "\n";
 
@@ -53,7 +52,10 @@ void send_response(int new_fd, user_list_t *list, bool city, bool course, bool y
             strcat(response, tmp);
         }
 
+        /*Sends the data inside the buffer "response" to new_fd socket*/
         send(new_fd, response, strlen(response), 0);
+
+        /*fills with zero the buffer "response"*/
         memset(response, 0, sizeof(response));
     }
 }
