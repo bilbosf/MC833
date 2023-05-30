@@ -2,6 +2,9 @@
 #define NETSERVICE
 
 #define BUFFER_LEN 1024
+#define MAXLINE 1024
+#define MAX_TRIES 2
+#define TIMEOUT_UCSECONDS 250000
 
 int connect_to_server();
 
