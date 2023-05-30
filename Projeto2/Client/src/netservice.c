@@ -51,14 +51,13 @@ int send_request(char cmd, char* arg, char* ip, int port){
 
 	printf("\nResposta do servidor:\n");
 
-	int end_of_transmision = 0;
 	int tries = 0;
-	while(end_of_transmision == 0){
+	while(1){
 		recvfrom(sockfd, (char *)buffer, MAXLINE, 0, NULL, NULL); //Blocking
 
 		if(strlen(buffer) == 0) tries++;
 
-		if(tries >= MAX_TRIES) end_of_transmision = 1;
+		if(tries >= MAX_TRIES) break;
 
 		for(int i = 0; i < MAXLINE; i++) {
 			if(buffer[i] != 0x04){
