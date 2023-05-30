@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "userdb.h"
+#include "images.h"
 
 sqlite3 *load_db(char *db_name){
     sqlite3 *db;
@@ -21,7 +22,8 @@ sqlite3 *load_db(char *db_name){
             "city TEXT,"
             "graduation_course TEXT,"
             "graduation_year TEXT,"
-            "skills TEXT);";
+            "skills TEXT,"
+            "photo BLOB);";
 
     char *err_msg = 0;
     rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
@@ -88,7 +90,7 @@ int build_list(sqlite3 *db, char *sql, user_list_t *user_list){
 
 int add_user(sqlite3 *db, user_t user){
     char sql[600];
-    snprintf(sql, 600, "INSERT INTO Users VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s');",
+    snprintf(sql, 600, "INSERT INTO Users VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', NULL);",
         user.email,
         user.first_name,
         user.last_name,
@@ -106,6 +108,62 @@ int add_user(sqlite3 *db, user_t user){
     }
 
     return 0;
+}
+
+int add_photo(sqlite3 *db, char *email, image_t *img){
+    sqlite3_stmt *stmt;
+
+    int rc = sqlite3_prepare_v2(db, "UPDATE Users SET photo = ? WHERE email = ?;", -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Error: %s\n", sqlite3_errmsg(db));
+        return -1;
+    }
+
+    rc = sqlite3_bind_blob(stmt, 1, img->data, img->size, NULL);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Error binding blob: %s\n", sqlite3_errmsg(db));
+        return -1;
+    }
+    
+    rc = sqlite3_bind_text(stmt, 2, email, -1, NULL);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Error binding text: %s\n", sqlite3_errmsg(db));
+        return -1;
+    }
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "Error adding photo: %s\n", sqlite3_errmsg(db));
+        return -1;
+    }
+
+    sqlite3_finalize(stmt);
+    return 0;
+}
+
+image_t *get_photo(sqlite3 *db, char *email){
+    sqlite3_stmt *stmt;
+    char sql[600];
+    snprintf(sql, 600, "SELECT photo FROM Users WHERE email = '%s';", email);
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Error: %s\n", sqlite3_errmsg(db));
+        return NULL;
+    }
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_ROW) {
+        fprintf(stderr, "Error retrieving photo: %s %d\n", sqlite3_errmsg(db), rc);
+        return NULL;
+    }
+
+    image_t *img = malloc(sizeof(image_t));
+    img->size = sqlite3_column_bytes(stmt, 0);
+    img->data = (unsigned char *)malloc(img->size);
+    memcpy(img->data, sqlite3_column_blob(stmt, 0), img->size);
+
+    sqlite3_finalize(stmt);
+    return img;
 }
 
 user_list_t *get_all_users(sqlite3 *db){
@@ -195,4 +253,35 @@ int remove_user(sqlite3 *db, char *email) {
     }
 
     return 0;
+}
+
+int main(){
+    // Example code to test image adding and retrieving
+    sqlite3 *db = load_db("test.db");
+
+    user_t user;
+    strcpy(user.email, "lucas_soares@gmail.com");
+    strcpy(user.first_name, "Lucas");
+    strcpy(user.last_name, "Soares");
+    strcpy(user.city, "Campinas");
+    strcpy(user.graduation_course, "Engenharia da Computacao");
+    strcpy(user.graduation_year, "2023");
+    strcpy(user.skills, "Sistemas Embarcados, Internet das Coisas, Computacao em Nuvem");
+
+    add_user(db, user);
+
+    image_t *img_in = load_image("test_photo.jpg");
+    printf("Input image size: %ld\n", img_in->size);
+    add_photo(db, "lucas_soares@gmail.com", img_in);
+
+    image_t *img_out = get_photo(db, "lucas_soares@gmail.com");
+    printf("Output image size: %ld\n", img_out->size);
+    save_image("photo_out.jpg", img_out);
+
+    free(img_in->data);
+    free(img_in);
+    free(img_out->data);
+    free(img_out);
+
+    sqlite3_close(db);
 }

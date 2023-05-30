@@ -5,6 +5,7 @@
 
 #define USER_FIELD_LEN 50
 #define USER_SKILLS_LEN 200
+#define MAX_IMAGE_SIZE 1000000
 
 typedef struct user_t {
     char email              [USER_FIELD_LEN];
