@@ -2,6 +2,7 @@
 #define USERDB
 
 #include <sqlite3.h>
+#include "images.h"
 
 #define USER_FIELD_LEN 50
 #define USER_SKILLS_LEN 200
@@ -25,6 +26,10 @@ typedef struct user_list_t {
 sqlite3 *load_db(char *db_name);
 
 int add_user(sqlite3 *db, user_t user);
+
+int add_photo(sqlite3 *db, char *email, image_t *img);
+
+image_t *get_photo(sqlite3 *db, char *email);
 
 user_list_t *get_all_users(sqlite3 *db);
 
