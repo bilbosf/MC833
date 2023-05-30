@@ -10,13 +10,13 @@
 #include "server_send.h"
 
 /*Format the response and send it to the client via socket*/
-void send_response(int new_fd, user_list_t *list, bool city, bool course, bool year, bool skills) {
-    char response[BUFFER_LEN] = "\n";
+void send_response(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, user_list_t *list, bool city, bool course, bool year, bool skills) {
+    char response[MAXLINE] = "\n";
 
     if(list == NULL || list->length == 0){
         char msg_null[50] = {0};
         sprintf(msg_null, "Nenhum resultado encontrado.\n\n%c", 0x04); //EOT - End of Transmission character
-        send(new_fd, msg_null, strlen(msg_null), 0);
+        sendto(new_fd, msg_null, strlen(msg_null), 0, (const struct sockaddr *) &cliaddr, clilen);
         return;
     }
 
@@ -53,53 +53,53 @@ void send_response(int new_fd, user_list_t *list, bool city, bool course, bool y
         }
 
         /*Sends the data inside the buffer "response" to new_fd socket*/
-        send(new_fd, response, strlen(response), 0);
+        sendto(new_fd, response, strlen(response), 0, (const struct sockaddr *) &cliaddr, clilen);
 
         /*fills with zero the buffer "response"*/
         memset(response, 0, sizeof(response));
     }
 }
 
-void send_users_by_course(int new_fd, sqlite3* db, char* course){
+void send_users_by_course(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* course){
     user_list_t *list = get_users_by_course(db, course);
 
-    send_response(new_fd, list, false, false, false, false);
+    send_response(new_fd, cliaddr, clilen, list, false, false, false, false);
 
     free(list->list);
     free(list);
 }
 
-void send_users_by_skill(int new_fd, sqlite3* db, char* skill){
+void send_users_by_skill(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* skill){
     user_list_t *list = get_users_by_skill(db, skill);
 
-    send_response(new_fd, list, false, false, false, false);
+    send_response(new_fd, cliaddr, clilen, list, false, false, false, false);
 
     free(list->list);
     free(list);
 }
 
-void send_users_by_year(int new_fd, sqlite3* db, char* year){
+void send_users_by_year(int new_fd,struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* year){
     user_list_t *list = get_users_by_year(db, year);
 
-    send_response(new_fd, list, false, true, false, false);
+    send_response(new_fd, cliaddr, clilen, list, false, true, false, false);
 
     free(list->list);
     free(list);
 }
 
-void send_all_info(int new_fd, sqlite3* db){
+void send_all_info(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db){
     user_list_t *list = get_all_users(db);
 
-    send_response(new_fd, list, true, true, true, true);
+    send_response(new_fd, cliaddr, clilen, list, true, true, true, true);
 
     free(list->list);
     free(list);
 }
 
-void send_users_by_email(int new_fd, sqlite3* db, char* email){
+void send_users_by_email(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* email){
     user_list_t *list = get_users_by_email(db, email);
 
-    send_response(new_fd, list, true, true, true, true);
+    send_response(new_fd, cliaddr, clilen, list, true, true, true, true);
 
     free(list->list);
     free(list);
@@ -117,8 +117,8 @@ user_t parse_user(char *arg) {
     return user;
 }
 
-void send_add_user(int new_fd, sqlite3* db, char* arg) {
-    char response[BUFFER_LEN] = {0};
+void send_add_user(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* arg) {
+    char response[MAXLINE] = {0};
     user_t new_user = parse_user(arg);
 
     if (add_user(db, new_user) != 0) {
@@ -127,11 +127,11 @@ void send_add_user(int new_fd, sqlite3* db, char* arg) {
         sprintf(response, "Usuário adicionado com sucesso: %s\n\n%c", new_user.email, 0x04); //EOT - End of Transmission character
     }
 
-    send(new_fd, response, strlen(response), 0);
+    sendto(new_fd, response, strlen(response), 0, (const struct sockaddr *) &cliaddr, clilen);
 }
 
-void send_remove_user(int new_fd, sqlite3* db, char* email) {
-    char response[BUFFER_LEN] = {0};
+void send_remove_user(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* email) {
+    char response[MAXLINE] = {0};
 
     if (remove_user(db, email) != 0) {
         sprintf(response, "Falha ao remover usuário: %s\n\n%c", email, 0x04); //EOT - End of Transmission character
@@ -139,5 +139,5 @@ void send_remove_user(int new_fd, sqlite3* db, char* email) {
         sprintf(response, "Usuário removido com sucesso: %s\n\n%c", email, 0x04); //EOT - End of Transmission character
     }
 
-    send(new_fd, response, strlen(response), 0);
+    sendto(new_fd, response, strlen(response), 0, (const struct sockaddr *) &cliaddr, clilen);
 }
