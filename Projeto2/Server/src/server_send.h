@@ -18,4 +18,6 @@ void send_add_user(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sql
 
 void send_remove_user(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* email);
 
+void send_image(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* email);
+
 #endif

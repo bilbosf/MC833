@@ -8,8 +8,8 @@ CFLAGS  = -g -Wall
 
 all: server userdb images
 
-server: src/server.c src/userdb.c src/server_send.c
-	$(CC) $(CFLAGS) -o bin/server src/server.c src/userdb.c src/server_send.c -l sqlite3
+server: src/server.c src/userdb.c src/server_send.c src/images.c
+	$(CC) $(CFLAGS) -o bin/server src/server.c src/userdb.c src/server_send.c src/images.c -l sqlite3
 
 userdb: src/userdb.c src/images.c
 	$(CC) $(CFLAGS) src/userdb.c src/images.c -l sqlite3 -o bin/userdb

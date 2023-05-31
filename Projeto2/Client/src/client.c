@@ -27,7 +27,9 @@ int main(){
         printf("\t5 - Retornar informações de um perfil\n");
 		printf("\t6 - Cadastrar um novo perfil\n");
 		printf("\t7 - Remover um perfil\n");
-		printf("\t8 - Sair do programa\n");
+		printf("\t8 - Upload de uma imagem de perfil\n");
+		printf("\t9 - Download de uma imagem de perfil\n");
+		printf("\ts - Sair do programa\n");
 
 		printf("\nComando: ");
 		char command;
@@ -38,34 +40,42 @@ int main(){
 		while ((c = getchar()) != '\n' && c != EOF); 
 
 		/* Directs to the right function if it needs to take an extra argument */
-		char arg[BUFFER_LEN - 1] = {'\0'};
+		char arg[MAXLINE - 1] = {'\0'};
 		switch (command){
 			case '1':
 				printf("Curso que deseja buscar: ");
-				take_argument(arg, BUFFER_LEN - 1);
+				take_argument(arg, MAXLINE - 1);
 				break;
 			case '2':
 				printf("Habilidade que deseja buscar: ");
-				take_argument(arg, BUFFER_LEN - 1);
+				take_argument(arg, MAXLINE - 1);
 				break;
 			case '3':
 				printf("Ano que deseja buscar: ");
-				take_argument(arg, BUFFER_LEN - 1);
+				take_argument(arg, MAXLINE - 1);
 				break;
 			case '4':
 				break;
 			case '5':
 				printf("Email do perfil que deseja consultar: ");
-				take_argument(arg, BUFFER_LEN - 1);
+				take_argument(arg, MAXLINE - 1);
 				break;
 			case '6':
 				take_user(arg);
 				break;
 			case '7':
 				printf("Email do perfil que deseja remover: ");
-				take_argument(arg, BUFFER_LEN - 1);
+				take_argument(arg, MAXLINE - 1);
 				break;
 			case '8':
+				printf("Email do perfil que deseja associar a imagem: ");
+				take_argument(arg, MAXLINE - 1);
+				break;
+			case '9':
+				printf("Email que deseja cosultar para receber a imagem de perfil: ");
+				take_argument(arg, MAXLINE - 1);
+				break;
+			case 's':
 				printf("Programa terminado.\n");
 				return 0;
 				break;

@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include "userdb.h"
 #include "server_send.h"
+#include "images.h"
 
 /*Format the response and send it to the client via socket*/
 void send_response(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, user_list_t *list, bool city, bool course, bool year, bool skills) {
@@ -140,4 +141,38 @@ void send_remove_user(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, 
     }
 
     sendto(new_fd, response, strlen(response), 0, (const struct sockaddr *) &cliaddr, clilen);
+}
+
+void send_image(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* email) {
+    
+    image_t *img_sent = get_photo(db, email);
+    if(img_sent == NULL){
+        char response[MAXLINE] = {0};
+        sprintf(response, "Falha ao pegar a imagem do usuário: %s\n\n%c", email, 0x04);
+        sendto(new_fd, response, strlen(response), 0, (const struct sockaddr *) &cliaddr, clilen);
+        return;
+    }
+    printf("Tamanho da imagem a ser enviada: %ld\n", img_sent->size);
+    save_image("photo_out_temp.jpg", img_sent);
+    free(img_sent->data);
+    free(img_sent);
+
+    FILE* fp = fopen("photo_out_temp.jpg", "rb");
+    if (fp == NULL) {
+        perror("Erro ao ler o arquivo");
+        exit(1);
+    }
+
+    char buffer[MAXLINE];
+    int bytes_read;
+    while ((bytes_read = fread(buffer, 1, sizeof(buffer), fp)) > 0) {
+        if ((sendto(new_fd, buffer, bytes_read, 0, (const struct sockaddr *) &cliaddr, clilen) < 0)) {
+            printf("Erro ao enviar os dados para o usuario");
+            return;
+        }
+        bzero(buffer, MAXLINE);
+    }
+    printf("imagem do perfil %s enviada.\n", email);
+    fclose(fp);
+    remove("photo_out_temp.jpg"); //exclui o arquivo de foto temporario
 }

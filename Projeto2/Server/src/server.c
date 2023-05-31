@@ -13,7 +13,7 @@
 void process_request(int new_fd, sqlite3* db);
 
 int main(){
-    sqlite3 *db = load_db("users.db"); //Database File
+    sqlite3 *db = load_db("test.db"); //Database File
 
     int sock_fd; //socket file descriptor
     struct sockaddr_in servaddr; //sockets address structure
@@ -77,6 +77,13 @@ void process_request(int new_fd, sqlite3* db){
             break;
         case '7':  //Remover um perfil
             send_remove_user(new_fd, cliaddr, clilen, db, buffer + 1);
+            break;
+        case '8':  //Upload de uma imagem de perfil
+            //send_remove_user(new_fd, cliaddr, clilen, db, buffer + 1);
+            printf("**Receber a imagem\n");
+            break;
+        case '9':  //Download de uma imagem de perfil
+            send_image(new_fd, cliaddr, clilen, db, buffer + 1);
             break;
     }
 }

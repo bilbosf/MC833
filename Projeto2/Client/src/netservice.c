@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include "netservice.h"
 
+void download_img(int sockfd, char* name);
+
 /*Organizes the command and arguments in the buffer and sends the request to the server.
 Prints the response received from server.*/
 int send_request(char cmd, char* arg, char* ip, int port){
@@ -47,13 +49,17 @@ int send_request(char cmd, char* arg, char* ip, int port){
 	
 	sendto(sockfd, (const char *)msg, strlen(msg), 0, (const struct sockaddr *) &servaddr, sizeof(servaddr));
 
-	char buffer[MAXLINE] = {0};
+	if(cmd == '9'){
+		download_img(sockfd, arg);
+		return 0;
+	}
 
 	printf("\nResposta do servidor:\n");
 
 	int tries = 0;
+	char buffer[MAXLINE] = {0};
 	while(1){
-		recvfrom(sockfd, (char *)buffer, MAXLINE, 0, NULL, NULL); //Blocking
+		recvfrom(sockfd, (char *)buffer, MAXLINE, 0, NULL, NULL); 
 
 		if(strlen(buffer) == 0) tries++;
 
@@ -69,4 +75,39 @@ int send_request(char cmd, char* arg, char* ip, int port){
 	}
 
 	return 0;
+}
+
+void download_img(int sockfd, char* name){
+	FILE *image_file;
+	size_t total_bytes_received = 0;
+	char buffer[MAXLINE];
+	char filename[MAXLINE] = {0};
+
+	sprintf(filename, "perfil_%s.jpg", name);
+
+	image_file = fopen(filename, "w"); 
+    if (image_file == NULL) {
+        perror("Error opening file");
+        exit(EXIT_FAILURE);
+    }
+
+	while (1) {
+        ssize_t bytesRead = recvfrom(sockfd, buffer, MAXLINE, 0, NULL, NULL);
+        if (bytesRead <= 0) {
+			// End of transmission
+            break;
+        }
+
+        // Write received data to file
+        size_t bytesWritten = fwrite(buffer, sizeof(char), bytesRead, image_file);
+        if (bytesWritten != bytesRead) {
+            perror("Error writing to file");
+            exit(EXIT_FAILURE);
+        }
+
+        total_bytes_received += bytesWritten;
+    }
+
+    fclose(image_file);
+    printf("Imagem recebida com sucesso. Total de bytes recebido: %ld\n", total_bytes_received);
 }

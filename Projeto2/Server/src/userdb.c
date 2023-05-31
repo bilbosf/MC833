@@ -255,6 +255,7 @@ int remove_user(sqlite3 *db, char *email) {
     return 0;
 }
 
+/*
 int main(){
     // Example code to test image adding and retrieving
     sqlite3 *db = load_db("test.db");
@@ -285,3 +286,4 @@ int main(){
 
     sqlite3_close(db);
 }
+*/
