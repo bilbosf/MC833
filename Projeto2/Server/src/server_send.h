@@ -3,6 +3,7 @@
 
 #define BUFFER_LEN 1024
 #define MAXLINE 1024
+#define TEMP_IMG_NAME "tmp_img"
 
 void send_users_by_course(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* course);
 
@@ -19,5 +20,7 @@ void send_add_user(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sql
 void send_remove_user(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* email);
 
 void send_image(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* email);
+
+void receive_image(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* email);
 
 #endif

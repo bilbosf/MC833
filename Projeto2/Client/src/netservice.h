@@ -8,7 +8,7 @@
 
 int connect_to_server();
 
-int send_request(char cmd, char* arg, char* ip, int port);
+int send_request(char cmd, char* arg, char* ip, int port, char* image_path);
 
 void add_user();
 

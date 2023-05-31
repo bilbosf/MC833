@@ -144,7 +144,6 @@ void send_remove_user(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, 
 }
 
 void send_image(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* email) {
-    
     image_t *img_sent = get_photo(db, email);
     if(img_sent == NULL){
         char response[MAXLINE] = {0};
@@ -153,11 +152,11 @@ void send_image(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite
         return;
     }
     printf("Tamanho da imagem a ser enviada: %ld\n", img_sent->size);
-    save_image("photo_out_temp.jpg", img_sent);
+    save_image(TEMP_IMG_NAME, img_sent);
     free(img_sent->data);
     free(img_sent);
 
-    FILE* fp = fopen("photo_out_temp.jpg", "rb");
+    FILE* fp = fopen(TEMP_IMG_NAME, "rb");
     if (fp == NULL) {
         perror("Erro ao ler o arquivo");
         exit(1);
@@ -174,5 +173,50 @@ void send_image(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite
     }
     printf("imagem do perfil %s enviada.\n", email);
     fclose(fp);
-    remove("photo_out_temp.jpg"); //exclui o arquivo de foto temporario
+    remove(TEMP_IMG_NAME); //exclui o arquivo de foto temporario
+}
+
+void receive_image(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* email){
+	FILE *image_file;
+	size_t total_bytes_received = 0;
+	char buffer[MAXLINE];
+
+	image_file = fopen(TEMP_IMG_NAME, "w"); 
+    if (image_file == NULL) {
+        perror("Error opening file");
+        exit(EXIT_FAILURE);
+    }
+
+	while (1) {
+        ssize_t bytesRead = recvfrom(new_fd, buffer, MAXLINE, 0, NULL, NULL);
+        if (bytesRead <= 0) {
+			// End of transmission
+            break;
+        }
+
+        // Write received data to file
+        size_t bytesWritten = fwrite(buffer, sizeof(char), bytesRead, image_file);
+        if (bytesWritten != bytesRead) {
+            perror("Error writing to file");
+            exit(EXIT_FAILURE);
+        }
+
+        total_bytes_received += bytesWritten;
+    }
+
+    fclose(image_file);
+    printf("Imagem recebida com sucesso. Total de bytes recebido: %ld\n", total_bytes_received);
+
+    image_t *img_received = load_image(TEMP_IMG_NAME);
+    char response[MAXLINE] = {0};
+    if(add_photo(db, email, img_received) != 0){
+        sprintf(response, "Falha ao adicionar imagem do usuário: %s\n\n%c", email, 0x04);
+    } else {
+        sprintf(response, "Imagem adicionada com sucesso ao usuário: %s\n\n%c", email, 0x04);
+    }
+
+    sendto(new_fd, response, strlen(response), 0, (const struct sockaddr *) &cliaddr, clilen);
+
+    remove(TEMP_IMG_NAME); //exclui o arquivo de foto temporario
+    return;
 }

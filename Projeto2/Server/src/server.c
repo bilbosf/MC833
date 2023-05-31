@@ -9,6 +9,7 @@
 #include "server_send.h"
 
 #define SERV_PORT 8080
+#define TIMEOUT_UCSECONDS 250000
 
 void process_request(int new_fd, sqlite3* db);
 
@@ -22,6 +23,11 @@ int main(){
     //third parameter 0: chooses the proper protocol for the given type
     sock_fd = socket (AF_INET, SOCK_DGRAM, 0);
 
+    // Set a receive time-out for the socket recvfrom()
+	struct timeval read_timeout;
+	read_timeout.tv_sec = 0;
+	read_timeout.tv_usec = TIMEOUT_UCSECONDS;
+	setsockopt(sock_fd, SOL_SOCKET, SO_RCVTIMEO, &read_timeout, sizeof read_timeout);
 
     /*Fills server socket address structure */
     bzero(&servaddr, sizeof(servaddr));            // fill with zeros first
@@ -50,7 +56,6 @@ void process_request(int new_fd, sqlite3* db){
     We designed MAXLINE to be sufficient to receive any message from client
     */
     if (recvfrom(new_fd, (char *)buffer, MAXLINE, 0, (struct sockaddr *) &cliaddr, &clilen) < 0) {
-        printf("Error in receiving data.\n");
         return;
     }
 
@@ -79,8 +84,7 @@ void process_request(int new_fd, sqlite3* db){
             send_remove_user(new_fd, cliaddr, clilen, db, buffer + 1);
             break;
         case '8':  //Upload de uma imagem de perfil
-            //send_remove_user(new_fd, cliaddr, clilen, db, buffer + 1);
-            printf("**Receber a imagem\n");
+            receive_image(new_fd, cliaddr, clilen, db, buffer + 1);
             break;
         case '9':  //Download de uma imagem de perfil
             send_image(new_fd, cliaddr, clilen, db, buffer + 1);

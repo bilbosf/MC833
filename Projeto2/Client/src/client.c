@@ -70,7 +70,11 @@ int main(){
 			case '8':
 				printf("Email do perfil que deseja associar a imagem: ");
 				take_argument(arg, MAXLINE - 1);
-				break;
+				printf("Arquivo da imagem a ser enviada: ");
+				char filepath[MAXLINE] = {'\0'};
+				take_argument(filepath, MAXLINE);
+				send_request(command, arg, IP, PORT, filepath);
+				continue;
 			case '9':
 				printf("Email que deseja cosultar para receber a imagem de perfil: ");
 				take_argument(arg, MAXLINE - 1);
@@ -85,7 +89,7 @@ int main(){
 		}
 
 		
-		send_request(command, arg, IP, PORT);
+		send_request(command, arg, IP, PORT, NULL);
 
 		printf("Pressione enter para continuar.");
 		while ((c = getchar()) != '\n' && c != EOF); 

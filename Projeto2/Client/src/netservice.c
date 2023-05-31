@@ -8,10 +8,11 @@
 #include "netservice.h"
 
 void download_img(int sockfd, char* name);
+void upload_img(int sockfd, struct sockaddr_in servaddr, socklen_t servlen, char* path);
 
 /*Organizes the command and arguments in the buffer and sends the request to the server.
 Prints the response received from server.*/
-int send_request(char cmd, char* arg, char* ip, int port){
+int send_request(char cmd, char* arg, char* ip, int port, char* image_path){
 
 	int sockfd;
     struct sockaddr_in servaddr;
@@ -49,7 +50,11 @@ int send_request(char cmd, char* arg, char* ip, int port){
 	
 	sendto(sockfd, (const char *)msg, strlen(msg), 0, (const struct sockaddr *) &servaddr, sizeof(servaddr));
 
-	if(cmd == '9'){
+	if(cmd == '8'){ // Image upload
+		upload_img(sockfd, servaddr, sizeof(servaddr), image_path);
+		return 0;
+	}
+	if(cmd == '9'){ // Image download
 		download_img(sockfd, arg);
 		return 0;
 	}
@@ -110,4 +115,25 @@ void download_img(int sockfd, char* name){
 
     fclose(image_file);
     printf("Imagem recebida com sucesso. Total de bytes recebido: %ld\n", total_bytes_received);
+}
+
+void upload_img(int sockfd, struct sockaddr_in servaddr, socklen_t servlen, char* path) {
+    FILE* fp = fopen(path, "rb");
+    if (fp == NULL) {
+        perror("Erro ao ler o arquivo");
+        exit(1);
+    }
+
+    char buffer[MAXLINE];
+    int bytes_read;
+    while ((bytes_read = fread(buffer, 1, sizeof(buffer), fp)) > 0) {
+        if ((sendto(sockfd, buffer, bytes_read, 0, (const struct sockaddr *) &servaddr, servlen) < 0)) {
+            printf("Erro ao enviar os dados para o usuario");
+            return;
+        }
+        bzero(buffer, MAXLINE);
+    }
+
+    printf("Imagem enviada.\n");
+    fclose(fp);
 }
