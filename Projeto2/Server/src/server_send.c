@@ -11,7 +11,7 @@
 #include "images.h"
 
 /*Format the response and send it to the client via socket*/
-void send_response(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, user_list_t *list, bool city, bool course, bool year, bool skills) {
+void send_response(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, user_list_t *list, bool city, bool course, bool year, bool skills, bool has_image) {
     char response[MAXLINE] = "\n";
 
     if(list == NULL || list->length == 0){
@@ -46,6 +46,10 @@ void send_response(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, use
             sprintf(tmp, "Habilidades: %s\n", list->list[i].skills);
             strcat(response, tmp);
         }
+        if (has_image){
+            sprintf(tmp, "Tem imagem de perfil: %s\n", (list->list[i].has_image ? "Sim" : "Não"));
+            strcat(response, tmp);
+        }
         strcat(response, "\n");
 
         if(i == list->length - 1){
@@ -64,7 +68,7 @@ void send_response(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, use
 void send_users_by_course(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* course){
     user_list_t *list = get_users_by_course(db, course);
 
-    send_response(new_fd, cliaddr, clilen, list, false, false, false, false);
+    send_response(new_fd, cliaddr, clilen, list, false, false, false, false, false);
 
     free(list->list);
     free(list);
@@ -73,7 +77,7 @@ void send_users_by_course(int new_fd, struct sockaddr_in cliaddr, socklen_t clil
 void send_users_by_skill(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* skill){
     user_list_t *list = get_users_by_skill(db, skill);
 
-    send_response(new_fd, cliaddr, clilen, list, false, false, false, false);
+    send_response(new_fd, cliaddr, clilen, list, false, false, false, false, false);
 
     free(list->list);
     free(list);
@@ -82,7 +86,7 @@ void send_users_by_skill(int new_fd, struct sockaddr_in cliaddr, socklen_t clile
 void send_users_by_year(int new_fd,struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* year){
     user_list_t *list = get_users_by_year(db, year);
 
-    send_response(new_fd, cliaddr, clilen, list, false, true, false, false);
+    send_response(new_fd, cliaddr, clilen, list, false, true, false, false, false);
 
     free(list->list);
     free(list);
@@ -91,7 +95,7 @@ void send_users_by_year(int new_fd,struct sockaddr_in cliaddr, socklen_t clilen,
 void send_all_info(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db){
     user_list_t *list = get_all_users(db);
 
-    send_response(new_fd, cliaddr, clilen, list, true, true, true, true);
+    send_response(new_fd, cliaddr, clilen, list, true, true, true, true, true);
 
     free(list->list);
     free(list);
@@ -100,7 +104,7 @@ void send_all_info(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sql
 void send_users_by_email(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* email){
     user_list_t *list = get_users_by_email(db, email);
 
-    send_response(new_fd, cliaddr, clilen, list, true, true, true, true);
+    send_response(new_fd, cliaddr, clilen, list, true, true, true, true, true);
 
     free(list->list);
     free(list);

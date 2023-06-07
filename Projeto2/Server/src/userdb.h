@@ -3,6 +3,7 @@
 
 #include <sqlite3.h>
 #include "images.h"
+#include <stdbool.h>
 
 #define USER_FIELD_LEN 50
 #define USER_SKILLS_LEN 200
@@ -16,6 +17,7 @@ typedef struct user_t {
     char graduation_course  [USER_FIELD_LEN];
     char graduation_year    [USER_FIELD_LEN];
     char skills             [USER_SKILLS_LEN];
+    bool has_image;
 } user_t;
 
 typedef struct user_list_t {

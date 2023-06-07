@@ -76,6 +76,7 @@ int build_list(sqlite3 *db, char *sql, user_list_t *user_list){
         strncpy(user_list->list[i].email,            (char*) sqlite3_column_text(stmt, 0), sqlite3_column_bytes(stmt, 0) + 1);
         strncpy(user_list->list[i].graduation_year,  (char*) sqlite3_column_text(stmt, 5), sqlite3_column_bytes(stmt, 5) + 1);
         strncpy(user_list->list[i].skills,           (char*) sqlite3_column_text(stmt, 6), sqlite3_column_bytes(stmt, 6) + 1);
+        user_list->list[i].has_image = (sqlite3_column_bytes(stmt, 7) > 0);
         i++;
     }
 
