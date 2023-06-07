@@ -114,7 +114,13 @@ void download_img(int sockfd, char* name){
     }
 
     fclose(image_file);
-    printf("Imagem recebida com sucesso. Total de bytes recebido: %ld\n", total_bytes_received);
+
+	if(total_bytes_received == 0){
+		printf("Erro ao receber imagem, ou imagem não existe no banco de dados.\n");
+		remove(filename); //exclui o arquivo de foto vazio
+	}else{
+		printf("Imagem recebida com sucesso. Total de bytes recebidos: %ld\n", total_bytes_received);
+	}
 }
 
 void upload_img(int sockfd, struct sockaddr_in servaddr, socklen_t servlen, char* path) {
