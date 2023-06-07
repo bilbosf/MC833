@@ -14,7 +14,7 @@
 void process_request(int new_fd, sqlite3* db);
 
 int main(){
-    sqlite3 *db = load_db("test.db"); //Database File
+    sqlite3 *db = load_db("users.db"); //Database File
 
     int sock_fd; //socket file descriptor
     struct sockaddr_in servaddr; //sockets address structure

@@ -146,11 +146,17 @@ void send_remove_user(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, 
 void send_image(int new_fd, struct sockaddr_in cliaddr, socklen_t clilen, sqlite3* db, char* email) {
     image_t *img_sent = get_photo(db, email);
     if(img_sent == NULL){
-        char response[MAXLINE] = {0};
-        sprintf(response, "Falha ao pegar a imagem do usuário: %s\n\n%c", email, 0x04);
-        sendto(new_fd, response, strlen(response), 0, (const struct sockaddr *) &cliaddr, clilen);
+        printf("Falha ao pegar a imagem do usuário: %s\n", email);
         return;
     }
+
+    if(img_sent->size == 0){
+        printf("Não há imagem para o usuário: %s\n", email);
+        free(img_sent->data);
+        free(img_sent);
+        return;
+    }
+
     printf("Tamanho da imagem a ser enviada: %ld\n", img_sent->size);
     save_image(TEMP_IMG_NAME, img_sent);
     free(img_sent->data);
