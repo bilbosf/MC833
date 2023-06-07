@@ -48,7 +48,7 @@ int send_request(char cmd, char* arg, char* ip, int port, char* image_path){
 	memcpy(&msg[1], arg, MAXLINE - 1);
 
 	
-	sendto(sockfd, (const char *)msg, strlen(msg), 0, (const struct sockaddr *) &servaddr, sizeof(servaddr));
+	sendto(sockfd, (const char *)msg, MAXLINE, 0, (const struct sockaddr *) &servaddr, sizeof(servaddr));
 
 	if(cmd == '8'){ // Image upload
 		upload_img(sockfd, servaddr, sizeof(servaddr), image_path);
